@@ -7,12 +7,10 @@
 📌 Mô tả       : Ứng dụng cho phép người dùng chụp ảnh màn hình, trích xuất văn bản,
                  và gửi tới mô hình AI để dịch và giải thích, hoàn toàn chạy trên Windows.
 ──────────────────────────────────────────────────────────────
-
-Lưu ý: Không được sao chép, chỉnh sửa hoặc phân phối lại mà không có sự cho phép của tác giả.
 """
 
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
+from tkinter import scrolledtext
 from PIL import Image, ImageGrab
 import requests
 import os
@@ -50,29 +48,27 @@ def capture_and_process():
     try:
         image = ImageGrab.grabclipboard()
         if image is None:
-            messagebox.showerror("Lỗi", "Không tìm thấy hình ảnh trong clipboard.")
+            display_result("Không tìm thấy hình ảnh trong clipboard.")
             return
         image_path = os.path.join(exe_dir, "screenshot_clipboard.png")
         image.save(image_path)
         with open(image_path, "rb") as img_file:
             image_data = base64.b64encode(img_file.read()).decode("utf-8")
         if not image_data:
-            messagebox.showinfo("Kết quả", "Không nhận diện được hình ảnh.")
+            display_result("Không nhận diện được hình ảnh.")
         else:
             response = call_gemini_api(image_data)
-            if response:
-                display_result(response)
+            display_result(response)
         if os.path.exists(image_path):
             os.remove(image_path)
     except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể xử lý ảnh: {str(e)}")
+        display_result(f"Không thể xử lý ảnh: {str(e)}")
 
 def call_gemini_api(image_data):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     rules_path = os.path.join(exe_dir, "rules.txt")
     if not os.path.exists(rules_path):
-        messagebox.showerror("Lỗi", "Không tìm thấy file rules.txt trong thư mục ứng dụng.")
-        return None
+        return "Không tìm thấy file rules.txt trong thư mục ứng dụng."
     with open(rules_path, "r", encoding="utf-8") as f:
         rules = f.read()
     payload = {
@@ -93,19 +89,28 @@ def call_gemini_api(image_data):
     try:
         response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
         if response.status_code == 200:
-            data = response.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            try:
+                data = response.json()
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    return "API đang bận. Hãy thử lại!"
+                content = candidates[0].get("content", {})
+                parts = content.get("parts", [])
+                if not parts:
+                    return "API đang bận. Hãy thử lại!"
+                return parts[0].get("text", "")
+            except Exception as parse_err:
+                return f"Lỗi khi xử lý phản hồi API:\n{str(parse_err)}"
+                 
         else:
             try:
                 error_detail = response.json()
                 error_message = error_detail.get("error", {}).get("message", response.text)
             except Exception:
                 error_message = response.text
-            messagebox.showerror("Lỗi API", f"API trả về lỗi {response.status_code}:\n{error_message}")
-            return None
+            return f"API trả về lỗi {response.status_code}:\n{error_message}"
     except Exception as e:
-        messagebox.showerror("Lỗi", f"Lỗi khi gọi API: {str(e)}")
-        return None
+        return f"Lỗi khi gọi API: {str(e)}"
 
 def display_result(text):
     global result_window
@@ -154,16 +159,15 @@ def wait_until_process_exists(name, timeout=10):
 def wait_for_screenclip():
     global is_processing
     if is_processing:
-        print("Đang xử lý, vui lòng chờ...")
         return
     is_processing = True
     try:
         subprocess.Popen("explorer.exe ms-screenclip:", shell=True)
         if not wait_until_process_exists("ScreenClippingHost.exe", timeout=10):
-            messagebox.showerror("Lỗi", "Không khởi động được công cụ cắt màn hình.")
+            display_result("Không thể khởi động được công cụ cắt màn hình. Hãy tắt ứng dụng và bật lại")
             return
         if not wait_until_process_exits("ScreenClippingHost.exe"):
-            messagebox.showerror("Lỗi", "Công cụ cắt chưa được đóng.")
+            display_result("Công cụ cắt chưa được đóng đúng cách. Hãy tắt ứng dụng và bật lại")
             return
         time.sleep(1)
         capture_and_process()
