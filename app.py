@@ -1,3 +1,16 @@
+"""
+──────────────────────────────────────────────────────────────
+🌸 AI Screen Translator - Ứng dụng dịch văn bản từ ảnh chụp màn hình
+📌 Tác giả     : Mẫn (2025)
+📌 Ngôn ngữ    : Python
+📌 Bản quyền   : © 2025 Mẫn. Giữ mọi quyền.
+📌 Mô tả       : Ứng dụng cho phép người dùng chụp ảnh màn hình, trích xuất văn bản,
+                 và gửi tới mô hình AI để dịch và giải thích, hoàn toàn chạy trên Windows.
+──────────────────────────────────────────────────────────────
+
+Lưu ý: Không được sao chép, chỉnh sửa hoặc phân phối lại mà không có sự cho phép của tác giả.
+"""
+
 import tkinter as tk
 from tkinter import messagebox, scrolledtext
 from PIL import Image, ImageGrab
@@ -15,11 +28,13 @@ import psutil
 from dotenv import load_dotenv
 import winreg
 
+load_dotenv()
+
 result_window = None
 icon = None
 is_processing = False
+
 exe_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-load_dotenv()
 api_key = os.getenv("gemini_api_key")
 
 def add_to_startup_registry(app_name, exe_path):
@@ -173,7 +188,7 @@ def setup_tray_icon():
     except Exception:
         image = Image.new('RGB', (32, 32), color=(0, 255, 0))
     menu = (item('Thoát', quit_app),)
-    icon = pystray.Icon("ScreenCapture", image, "Screen Capture", menu)
+    icon = pystray.Icon("AIScreenTranslator", image, "AI Screen Translator", menu)
     threading.Thread(target=icon.run, daemon=True).start()
 
 def run_app():
@@ -185,7 +200,7 @@ def run_app():
     root.mainloop()
 
 if __name__ == "__main__":
-    app_name = "ScreenCapture"
+    app_name = "AIScreenTranslator"
     exe_path = os.path.abspath(sys.argv[0])
     try:
         key = winreg.OpenKey(

@@ -1,4 +1,4 @@
-('D:\\translate\\build\\app\\PYZ-00.pyz',
+('D:\\ai-screen-translator\\build\\app\\PYZ-00.pyz',
  [('PIL',
    'C:\\Users\\final\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\__init__.py',
    'PYMODULE'),

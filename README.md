@@ -25,7 +25,7 @@
 ## 🛠 Cài đặt
 
 1. Clone repo:
-- git clone https://github.com/pham-van-man/ScreenCapture.git
+- git clone https://github.com/pham-van-man/AIScreenTranslator.git
 2. Cấu hình API key trong .env:
 - Vào trong chủ của Google Studio, sau đó đăng kí lấy cho mình một api_key của gemini-2.0-flash
 - Dán nó vào file config.env với cú pháp sau: gemini_api_key=your_key_here
