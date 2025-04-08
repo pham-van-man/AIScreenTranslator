@@ -34,6 +34,8 @@ missing module named multiprocessing.get_start_method - imported by multiprocess
 missing module named pyimod02_importers - imported by C:\Users\final\AppData\Local\Programs\Python\Python313\Lib\site-packages\PyInstaller\hooks\rthooks\pyi_rth_pkgutil.py (delayed)
 missing module named collections.Callable - imported by collections (optional), socks (optional)
 missing module named _suggestions - imported by traceback (delayed, optional)
+missing module named 'IPython.core' - imported by dotenv.ipython (top-level)
+missing module named IPython - imported by dotenv.ipython (top-level)
 missing module named fcntl - imported by subprocess (optional), keyboard._nixcommon (delayed)
 missing module named 'gi.repository' - imported by pystray._appindicator (top-level), pystray._util.gtk (top-level), pystray._util.notify_dbus (top-level), pystray._gtk (top-level)
 missing module named gi - imported by pystray._appindicator (top-level), pystray._util.gtk (top-level), pystray._util.notify_dbus (top-level), pystray._gtk (top-level)

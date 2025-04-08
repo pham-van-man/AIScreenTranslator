@@ -12,11 +12,24 @@ import base64
 import subprocess
 import time
 import psutil
+from dotenv import load_dotenv
+import winreg
 
 result_window = None
 icon = None
 is_processing = False
 exe_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+load_dotenv()
+api_key = os.getenv("gemini_api_key")
+
+def add_to_startup_registry(app_name, exe_path):
+    key = winreg.OpenKey(
+        winreg.HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Run",
+        0, winreg.KEY_SET_VALUE
+    )
+    winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, exe_path)
+    winreg.CloseKey(key)
 
 def capture_and_process():
     try:
@@ -40,7 +53,6 @@ def capture_and_process():
         messagebox.showerror("Lỗi", f"Không thể xử lý ảnh: {str(e)}")
 
 def call_gemini_api(image_data):
-    api_key = "AIzaSyDfHOsInONqo3KPAVzyft1HSPVeVnwfk-w"
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     rules_path = os.path.join(exe_dir, "rules.txt")
     if not os.path.exists(rules_path):
@@ -69,7 +81,12 @@ def call_gemini_api(image_data):
             data = response.json()
             return data["candidates"][0]["content"]["parts"][0]["text"]
         else:
-            messagebox.showerror("Lỗi API", f"API trả về lỗi: {response.status_code}")
+            try:
+                error_detail = response.json()
+                error_message = error_detail.get("error", {}).get("message", response.text)
+            except Exception:
+                error_message = response.text
+            messagebox.showerror("Lỗi API", f"API trả về lỗi {response.status_code}:\n{error_message}")
             return None
     except Exception as e:
         messagebox.showerror("Lỗi", f"Lỗi khi gọi API: {str(e)}")
@@ -168,4 +185,21 @@ def run_app():
     root.mainloop()
 
 if __name__ == "__main__":
+    app_name = "ScreenCapture"
+    exe_path = os.path.abspath(sys.argv[0])
+    try:
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Run",
+            0, winreg.KEY_READ
+        )
+        try:
+            existing_path, _ = winreg.QueryValueEx(key, app_name)
+            if existing_path != exe_path:
+                add_to_startup_registry(app_name, exe_path)
+        except FileNotFoundError:
+            add_to_startup_registry(app_name, exe_path)
+        winreg.CloseKey(key)
+    except Exception as e:
+        print(f"Không thể thêm vào khởi động cùng Windows: {e}")
     run_app()
