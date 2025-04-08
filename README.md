@@ -34,7 +34,7 @@
 - Gõ yêu cầu của bạn vào file sau đó lưu lại
 - Các request gửi đến AI sẽ gửi kèm theo các yêu cầu bên trong file rules.txt
 3. Chạy ứng dụng:
-- Chạy trực tiếp bằng file app.exe hoặc python app.py (cần có môi trường python)
+- Chạy trực tiếp file AIScreenTranslator.exe
 4. Sử dụng ứng dụng:
 - Mở ứng dụng bằng phím tắt Ctrl + Alt + X
 - Kéo thả chuột tạo vùng chọn
